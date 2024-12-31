@@ -26,24 +26,38 @@ def get_active_window():
 def save_log(usage_log):
     today = date.today().strftime("%Y-%m-%d")
     file_name = f"logs/activity_log_{today}.csv"
-    file_exists = os.path.exists(file_name)
 
+    # Write the updated log data to the file (always overwriting)
     with open(file_name, "w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
-        if not file_exists:
-            writer.writerow(
-                ["Application", "Time Spent (seconds)"]
-            )  # Write header if the file doesn't exist
+        writer.writerow(["Application", "Time Spent (seconds)"])  # Write header
         for app, duration in usage_log.items():
             writer.writerow([app, duration])
 
     print(f"Log saved to {file_name}")
 
 
-def log_activity(interval=5, max_duration=86400):  # max_duration: 24 hours in seconds
+def load_existing_log():
+    today = date.today().strftime("%Y-%m-%d")
+    file_name = f"logs/activity_log_{today}.csv"
+
     usage_log = defaultdict(int)
-    # Create headers for the log file
-    usage_log["Application"] = "Time Spent (seconds)"
+
+    # If the file exists, read its contents and load into usage_log
+    if os.path.exists(file_name):
+        with open(file_name, "r", newline="", encoding="utf-8") as file:
+            reader = csv.reader(file)
+            next(reader)  # Skip the header row
+            for row in reader:
+                app = row[0]
+                duration = int(row[1])
+                usage_log[app] += duration  # Add existing data to the log
+
+    return usage_log
+
+
+def log_activity(interval=5, max_duration=86400):  # max_duration: 24 hours in seconds
+    usage_log = load_existing_log()  # Load existing data at the start
 
     start_time = time.time()
 
@@ -52,6 +66,7 @@ def log_activity(interval=5, max_duration=86400):  # max_duration: 24 hours in s
         usage_log[active_window] += interval
         time.sleep(interval)
 
+        # Save log every 1 second (can be adjusted for efficiency)
         if int(time.time() - start_time) % 60 == 0:
             save_log(usage_log)
 
