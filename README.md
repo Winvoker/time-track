@@ -35,7 +35,6 @@ This repository contains a PowerShell script that automatically runs your Python
     
     ```powershell
     powershell
-    Kodu kopyala
     .\setup_activity_tracker.ps1
     
     ```
@@ -53,7 +52,6 @@ If you want to run the Python script manually before setting it up for automatic
     
     ```bash
     bash
-    Kodu kopyala
     python C:\path\to\your\script\script.py
     
     ```
